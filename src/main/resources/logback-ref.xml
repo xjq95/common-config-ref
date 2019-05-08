@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--scan:当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。-->
+<!--scanPeriod:设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。-->
+<!--debug:当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。-->
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!-- app name-->
+    <springProperty scope="context" name="APP_NAME" source="spring.application.name"/>
+    <!-- 日志根目录-->
+    <springProperty scope="context" name="LOG_HOME" source="log.logdir" defaultValue="logs"/>
+    <!-- 日志级别 -->
+    <springProperty scope="context" name="LOG_ROOT_LEVEL" source="logging.level.root" defaultValue="INFO"/>
+    <!-- 日志文件编码-->
+    <property name="LOG_CHARSET" value="UTF-8"/>
+    <!-- 自定义 appender -->
+    <appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--日志文件路径，日志文件名称-->
+        <File>${LOG_HOME}/all.${APP_NAME}.log</File>
+        <!-- 设置滚动策略，当天的日志大小超过 ${MAX_FILE_SIZE} 文件大小时候，新的内容写入新的文件， 默认10MB -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!--日志文件路径，新的 ALL 日志文件名称，“ i ” 是个变量 -->
+            <FileNamePattern>${LOG_HOME}/all.${APP_NAME}.%d{yyyyMMdd}.-%i.log</FileNamePattern>
+            <MaxHistory>${LOG_FILE_MAX_HISTORY:-7}</MaxHistory>
+            <maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
+        </rollingPolicy>
+        <!-- 输出的日志内容格式化-->
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 下面为配置只输出error级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <OnMismatch>DENY</OnMismatch>
+            <OnMatch>ACCEPT</OnMatch>
+        </filter>
+        <File>${LOG_HOME}/err.${APP_NAME}.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <FileNamePattern>${LOG_HOME}/err.${APP_NAME}.%d{yyyyMMdd}.-%i.log</FileNamePattern>
+            <MaxHistory>${LOG_FILE_MAX_HISTORY:-7}</MaxHistory>
+            <maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>utf8</charset>
+        </encoder>
+    </appender>
+    <!-- ${LOG_ROOT_LEVEL} 日志级别 -->
+    <root level="${LOG_ROOT_LEVEL}">
+        <!-- 标识这个"${STDOUT}"将会添加到这个logger -->
+        <appender-ref ref="CONSOLE"/>
+        <!-- FILE_ALL 日志输出添加到 logger -->
+        <appender-ref ref="FILE_ALL"/>
+        <!--FILE_ERROR 日志输出添加到 logger -->
+        <appender-ref ref="FILE_ERROR"/>
+    </root>
+</configuration>
