@@ -18,7 +18,6 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <dependencySets>
         <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <scope>runtime</scope>
         </dependencySet>
